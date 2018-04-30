@@ -1,0 +1,145 @@
+\documentclass[11pt]{article}
+\usepackage[left=1.0in,right=1.0in,top=1.0in,bottom=1.0in]{geometry}
+\usepackage{fancyhdr} % for header
+\usepackage{graphicx} % for figures
+\usepackage{amsmath}  % for extended math markup
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[bookmarks=false]{hyperref} % for URL embedding
+\usepackage[noend]{algpseudocode} % for pseudocode
+\usepackage{parskip}
+
+\newcommand{\union}{\cup}
+\newcommand{\isect}{\cap}
+\newcommand{\ceil}[1]{\ensuremath \left\lceil #1 \right\rceil}
+\newcommand{\floor}[1]{\ensuremath \left\lfloor #1 \right\rfloor}
+\newcommand{\N}{\ensuremath \mathbb{N}}
+\newcommand{\R}{\ensuremath \mathbb{R}}
+\newcommand{\Z}{\ensuremath \mathbb{Z}}
+\newcommand{\eps}{\ensuremath \epsilon}
+\newcommand{\E}{\ensuremath \mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\calS}{\ensuremath \mathcal{S}}
+\DeclareMathOperator{\conv}{conv}
+
+\newtheorem{proposition}{Proposition}
+
+
+\title{Restricted Assignment with Forecasts}
+
+\begin{document}
+
+\maketitle
+
+\section{Setup}
+Let $I$ be a set of machines and $J$ be a set of jobs (that will be received online).  Let $F(s,x)$ be a convex, well-conditioned, separable and scale free objective function.  We have the following problem:
+\begin{equation} \begin{array}{ccc}
+\min & F(s,x) & \\
+\text{s.t.} & \displaystyle\sum_{j \in \Gamma(i)} s_j x_{ij} \leq d_i & \forall i \in I \\
+            & \displaystyle\sum_{i \in \Gamma(j)} s_j x_{ij} \geq s_j & \forall j \in J \\
+ 			& s_j x_{ij} \geq 0 & \forall ij \in E
+\end{array} \end{equation}
+
+The Lagrangian is then:
+\[
+L(s,x,\alpha,\beta,\gamma) = F(s,x) + \sum_{i} \alpha_i \left( \sum_{j \in \Gamma(i)} s_j x_{ij} - d_i \right) + \sum_{j} \beta_{j} \left( s_j - \sum_{i \in \Gamma(j)} s_{j} x_{ij} \right) - \sum_{ij \in E} \gamma_{ij} s_j x_{ij}
+\]
+
+For $\alpha, \beta, \gamma \geq 0$.  The KKT conditions yield several useful equations.  First consider stationarity, $\nabla_{x} L = 0$:
+\[
+s_{j} f_{ij}(x) + \alpha_i s_j  - \beta_j s_j - \gamma_{ij}s_j = 0 \quad \forall ij \in E
+\]
+Rewriting this yields:
+\begin{equation}
+f_{ij}(x) + \alpha_i - \beta_j = \gamma_{ij}
+\end{equation}
+
+As always, we require $x$ to satisfy (1) (primal feasibility) and $\alpha,\beta, \gamma \geq 0$ (dual feasibility).  Now lets consider complementary slackness:
+\begin{equation} \begin{split}
+\alpha_{i} \left( \sum_{j \in \Gamma(i)} s_j x_{ij} - d_i \right) = 0 \quad & \forall i \in I
+\end{split}\end{equation}
+\begin{equation} \begin{split}
+\beta_{j} \left( s_j - \sum_{i \in \Gamma(j)} s_{j} x_{ij} \right) = 0 \quad & \forall j \in J 
+\end{split} \end{equation}
+\begin{equation} \begin{split}
+ \gamma_{ij} s_jx_{ij}  = 0 \quad & \forall ij \in E  
+\end{split} \end{equation}
+
+\section{Some Claims}
+
+Let $g_{ij} (z) = f^{-1}_{ij}(z)$ be the inverse function of $f_{ij}$.  Let $x^*$ be an optimal solution satisfying the KKT conditions.  Then we have the following claim:
+
+\textbf{Claim 1}: $x_{ij}^* = \max \{0, g_{ij}( - \alpha_i + \beta_j)\} $
+
+\emph{Proof}: Suppose that $x_{ij}^* = 0$, then we want to show that $g_{ij}(-\alpha_i + \beta_j) \leq 0$.  Suppose for contradiction that $g_{ij}(-\alpha+ \beta_j) > 0$, then this implies that $-\alpha_i + \beta_j > f_{ij}(x^*)$ since $f_{ij}$ is increasing. Thus  $f_{ij}(x^*) + \alpha_i - \beta_j < 0$, but this contradicts (2) and dual feasibility.
+
+Now suppose that $x_{ij}^* > 0$, then it must be the case that $\gamma_{ij} = 0$ by complementary slackness, so (2) yields $f_{ij}(x^*) = -\alpha_i + \beta_j$, and so $x_{ij}^* = g_{ij}(-\alpha_i + \beta_j)$.  This ends the proof.
+
+Now let $\hat{g}_{ij}(z) = \max\{0,g_{ij}(z)\}$.  We claim that $\beta$ is a function of $\alpha$.
+
+\textbf{Claim 2}: For all $j \in J$ we have
+\begin{equation}
+\beta_j = 
+\begin{cases}
+0 \quad \text{if } \sum_{i \in \Gamma(j)} \hat{g}_{ij} (- \alpha_i) > 1 \\
+y \quad \text{otherwise}
+\end{cases}
+\end{equation}
+where $y$ is the unique value satisfying $\sum_{i \in \Gamma(j)} \hat{g}_{ij} (-\alpha_i + y) = 1$.
+
+\emph{Proof}: Suppose that $\sum_{i \in \Gamma(j)} \hat{g}_{ij} (- \alpha_i) > 1$.  For contradiction, suppose that $\beta_j > 0$, then by complementary slackness, specifically (4), we have that $1 = \sum_{i \in \Gamma(j)} x_{ij}^* = \sum_{i \in \Gamma(j)} \hat{g}_{ij}(-\alpha_i + \beta_j) > \sum_{i \in \Gamma(j)} \hat{g}_{ij}(-\alpha_i) > 1$, a contradiction.  Thus in this case $\beta_j = 0$.
+
+Now in the other case we have that $\beta_j > 0$.  Suppose for contradiction that there is no such value $y > 0$ such that $\sum_{i \in \Gamma(j)} \hat{g}_{ij} (-\alpha_i + y) = 1$.  But this is a contradiction since $1 =  \sum_{i \in \Gamma(j)} x_{ij}^* = \sum_{i \in \Gamma(j)} \hat{g}_{ij} (-\alpha_i + \beta_j)$ and $\beta_j > 0$.  The uniqueness of the value $y$ follows since $g_{ij}$ is increasing.  This ends the proof.
+
+The Previous two claims show that we can write $x$ as a function of $\alpha$ and $\beta$ and $\beta$ as a function of $\alpha$.  Thus we can write $x^*$ as a function of $\alpha$ by taking $x^*_{ij}(\alpha) = \hat{g}_{ij}(-\alpha_i + \beta_j(\alpha))$.
+
+Note that for an objective of the form $\sum_{ij \in E} \frac{1}{2} x_{ij}^2$, we have that $\hat{g}_{ij}(z) = \max \{0,z\}$.  Now since $\alpha_{i} \geq 0$, it follows that we only consider the ``otherwise'' case in (6).  This says that the job constraints are always tight, i.e. $\sum_{i \in \Gamma{j}} x_{ij} = 1$ for all $j \in J$.   This makes intuitive sense considering the choice of objective.
+
+\section{A little bit of robustness}
+
+Consider a scenario where we predict the $\alpha_{i}$'s using some ML model.  Suppose that $\hat{\alpha}_i$ is a prediction of the true value $\alpha_i$, and it falls within some tolerance, i.e.
+\[
+(1- \eps) \alpha_i \leq \hat{\alpha}_i \leq (1+\eps) \alpha_i
+\]
+
+From the above discussion, we have that $\beta_j$ will be the value such that
+\[
+\sum_{i \in \Gamma(j)} \hat{g}_{ij} (\beta_j - \alpha_i) = 1
+\]
+
+Now let $\hat{\beta_j}$ be the value we get by applying the above rule to the predicted values $\hat{\alpha_i}$, i.e.
+\[
+1 = \sum_{i \in \Gamma(j)} \hat{g}_{ij} (\hat{\beta}_j - \hat{\alpha}_i)
+\]
+We claim that $(1-\eps) \beta_j \leq \hat{\beta_j} \leq (1+\eps) \beta_{j}$.  A sketch of why this is the case follows.  Consider increasing or decreasing $\hat{\alpha}_i$ by a $(1 \pm \eps)$ factor.  The rate at which the term above increases/ decreases due to this change is $\sum_{i \in \Gamma(j)} \alpha_i$ (as a function of $\eps$).  However in order to accomodate this change we increase/ decrease $\beta$ at a rate of $|\Gamma(j)|$ (again as a function of $\eps$).  Essentially $\beta_j$ gets more weight in this change over each individual $\alpha_i$, so it cannot change too much either.
+
+Assume that all the values always lie in the linear region of $\hat{g}_{ij}(z)$.  We claim that this is the worst case.  Then we have that $1 = \sum_{i \in \Gamma(j)} \hat{g}_{ij}(\beta_j - \alpha_i) = \sum_{i \in \Gamma(j)} \beta_j - \alpha_i = \beta_j |\Gamma(j)| - \sum_{i \in \Gamma(j)} \alpha_i$.  Thus we have that $\beta_j |\Gamma(j)| -1 = \sum_{i \in \Gamma(j)} \alpha_i$.
+
+Now writing a similar statement for the predicted values: $1 = \sum_{i \in \Gamma(j)} (\hat{\beta}_j - \hat{\alpha}_i)$.  Now plugging in the error for $\hat{\alpha}_i$ we get the bounds
+
+\[
+ \sum_{i \in \Gamma(j)} (\hat{\beta}_j - (1+\eps)\alpha_i)  \leq
+ \sum_{i \in \Gamma(j)} (\hat{\beta}_j - \hat{\alpha}_i) 
+ \leq \sum_{i \in \Gamma(j)} (\hat{\beta}_j -(1-\eps) \alpha_i)
+\]
+Which implies
+\[
+ |\Gamma(j)| \hat{\beta}_j-(1+\eps)\sum_{i \in \Gamma(j)} \alpha_i  \leq
+1
+ \leq |\Gamma(j)|\hat{\beta}_j -(1-\eps) \sum_{i \in \Gamma(j)} \alpha_i
+\]
+This yields the inequalities
+\[
+|\Gamma(j) |\hat{\beta}_j \geq 1 + (1-\eps) \sum_{i \in \Gamma(j)} \alpha_i \geq 1 + (1-\eps) ( |\Gamma(j)| \beta_j -1 ) 
+\]
+\[
+|\Gamma(j) |\hat{\beta}_j \leq 1 + (1+\eps) \sum_{i \in \Gamma(j)} \alpha_i \leq 1 + (1+\eps) ( |\Gamma(j)| \beta_j -1 )
+\]
+
+Simplifiying yields
+\[
+ (1-\eps) \beta_j \leq \hat{\beta}_j \leq (1+\eps) \beta_j
+\]
+
+\end{document}
