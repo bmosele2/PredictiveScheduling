@@ -1,0 +1,540 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[Scheduling w/ Predictions]{Online Scheduling with Predictions} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Thomas Lavastida} % Your name
+\institute[CMU] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+Carnegie Mellon University \\ % Your institution for the title page
+\medskip
+\textit{tlavastida@cmu.edu} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+ \begin{center} with Ben Moseley, Silvio Lattanzi and Sergei Vassilvitskii \end{center}
+\end{frame}
+
+
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Load Balancing w/ Unrelated Machines}
+
+\begin{itemize}
+\item $m$ machines
+\item Sequence of $n$ jobs
+\pause
+\item Job $j$ has processing time $p_{ij}\geq 0$ on machine $i$
+\pause
+\item Each job must be assigned to a single machine
+\pause
+\item Goal is to minimize the maximum load
+\item Load of a machine = total processing time of jobs assigned to it
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Online Load Balancing w/ Unrelated Machines}
+
+\begin{itemize}
+\item Sequence of jobs arrive \emph{online}
+\item Uncertainty about future jobs
+\pause
+\item Immediate dispatch - assign jobs upon arrival
+\item Reassignments not allowed
+\pause
+\item Worst case analysis against offline optimal algorithm
+\item Algorithm $A$ is $c$-competitive if for all job sequences $\sigma$:
+\[
+A(\sigma) \leq c \cdot OPT(\sigma)
+\]
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+
+\frametitle{What is known?}
+
+Offline:
+\begin{itemize}
+\item NP-hard
+\item PTAS for constant $m$
+\item 2-approximation for general $m$
+\begin{itemize}
+\item Lenstra, Shmoys, and Tardos
+\end{itemize}
+\end{itemize}
+\pause
+Online:
+\begin{itemize}
+\item $\Omega(\log n)$ lower bound on the competitive ratio for \emph{any} online algorithm
+
+	\begin{itemize}
+	\item Holds for deterministic and randomized online algorithms
+	\item Azar, Naor, and Rom
+	\end{itemize}
+\item $O(\log n)$-competitive algorithms known
+\begin{itemize}
+\item Aspnes, et al
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Going Beyond Worst Case}
+\begin{itemize}
+\item Reassignments
+\item Stochastic and queueing models
+\item Retain desirable properties of worst case analysis
+\item Is there something that is useful to predict?
+\begin{itemize}
+\item O(1)-competitive online algorithm
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Predictions}
+
+\begin{itemize}
+\item Predict the distribution of jobs
+\begin{itemize}
+\item Number of job types could be large
+\item Even with $p_{ij} \in \{1,\infty\}$, there are $O(2^m)$ job types
+\end{itemize}
+\pause
+\item Can we find a useful prediction that is \emph{compact}?
+\item Are the predictions \emph{robust} to small errors?
+\item Captures the contentiousness of a machine
+\item Ideally lead to $O(1)$-competitive online algorithm
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Current Direction}
+
+\begin{itemize}
+\item Write down mathematical program and its dual
+\begin{itemize}
+\item Constraint for assigning each job
+\item Constraint for maintaining the load of each machine
+\end{itemize}
+\pause
+\item Predict dual variables for machine constraints
+\begin{itemize}
+\item Compact prediction
+\item Captures cost/contentiousness of a machine
+\item Reconstruct primal solution online
+\item Robust?
+\end{itemize}
+\pause
+\item Round the fractional solution online
+%\item Currently studying the robustness of this prediction
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Recap}
+
+\begin{itemize}[<+->]
+\item Online Load Balancing w/ Unrelated machines
+\begin{itemize}
+\item $\Theta(\log n)$-competitive in worst case model
+\end{itemize}
+\item Want to use predictions to break through this
+\item Compact - only a few entries per machine
+\item Robust - reconstruct good solution in the presence of small errors
+\item O(1)-competitive online algorithm
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{ \ }
+
+\centering
+\huge
+Appendix
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Our approach}
+
+Assumptions/Notation:
+\begin{itemize}
+\item We know the optimal makespan $T^*$.
+\item For each machine $i$: $\Gamma_i := \{ j \mid p_{ij} \leq T^*\}$
+\item For each job $j$: $\Gamma_j :=\{ i \mid p_{ij} < \infty\}$
+
+\end{itemize}
+
+\vspace{0.5cm}
+
+General Approach:
+
+\begin{enumerate}
+\item Write down convex programming relaxation
+\item Take the dual!
+\item Predict dual variables
+\item Reconstruct primal solution
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Relaxation}
+
+Variables: $x_{ij}$ - allocation of job $j$ to machine $i$
+
+
+Constraints:
+\begin{itemize}
+\item The load of each machine is at most $T^*$
+\[
+\sum_{j \in \Gamma_i} p_{ij} x_{ij} \leq T^* \qquad (\alpha_i)
+\]
+\item Every job is assigned somewhere
+\[
+\sum_{i \in \Gamma_j} x_{ij} = 1 \qquad (\beta_j)
+\]
+\item Non-negativity
+\[
+x_{ij} \geq 0 \qquad (\gamma_{ij})
+\]
+
+
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+
+Many feasible solutions, add strictly convex objective $F(x)$
+
+\frametitle{Relaxation}
+\[
+\begin{array}{ccc}
+\min & F(x) & \\
+\text{s.t.} & \sum_{j \in \Gamma_i} p_{ij} x_{ij} \leq T^* & \forall \text{ machines} i \\
+ & \sum_{i \in \Gamma_j} x_{ij} = 1 & \forall \text{ jobs } j \\
+ & x_{ij} \geq 0 & \forall i,j
+\end{array}
+\]
+
+Lagrangian:
+\[
+F(x) + \sum_{i} \alpha_i\left(\sum_{j \in \Gamma_i} p_{ij} x_{ij} - T^* \right) + \sum_{j} \beta_j \left( 1 -  \sum_{i \in \Gamma_j} x_{ij}\right) - \sum_{i,j} \gamma_{ij} x_{ij}
+\]
+\end{frame}
+
+\begin{frame}
+\frametitle{Reconstruction}
+Assume that $\frac{\partial F(x)}{\partial x_{ij}} = f_{ij}(x_{ij})$, for some $f_{ij}$
+ 
+KKT yields:
+\[
+f_{ij}(x_{ij}) + \alpha_i p_{ij} - \beta_j -\gamma_{ij} = 0
+\]
+\[
+x_{ij} > 0 \implies \gamma_{ij} = 0
+\]
+
+If $x_{ij} > 0$, then
+\[
+x_{ij} = f_{ij}^{-1}(\beta_j - p_{ij} \alpha_{i})
+\]
+
+Thus,
+\[
+x_{ij} = \max \{ 0, f_{ij}^{-1}(\beta_j - p_{ij} \alpha_{i}) \}
+\]
+
+Conclusion: can reconstruct solution from dual variables!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Potential Algorithm}
+
+Note: Given $\alpha$, can also reconstruct $\beta$ online
+
+\vspace{0.5cm}
+
+The previous ideas lead to the following online algorithm:
+
+\begin{enumerate}
+\item Predict $\alpha$
+\item Given job $j$, and its values $p_{ij}$
+\begin{itemize}
+\item Compute $\beta_j$ from $\alpha$
+\item Reconstruct $x_{ij}$
+\end{itemize}
+\item Round the fractional solution online
+\end{enumerate}
+\end{frame}
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	Commented out template reference
+%----------------------------------------------------------------------------------------
+\iffalse
+
+%------------------------------------------------
+\section{First Section} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+\subsection{Subsection Example} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
+
+\begin{frame}
+\frametitle{Paragraphs of Text}
+Sed iaculis dapibus gravida. Morbi sed tortor erat, nec interdum arcu. Sed id lorem lectus. Quisque viverra augue id sem ornare non aliquam nibh tristique. Aenean in ligula nisl. Nulla sed tellus ipsum. Donec vestibulum ligula non lorem vulputate fermentum accumsan neque mollis.\\~\\
+
+Sed diam enim, sagittis nec condimentum sit amet, ullamcorper sit amet libero. Aliquam vel dui orci, a porta odio. Nullam id suscipit ipsum. Aenean lobortis commodo sem, ut commodo leo gravida vitae. Pellentesque vehicula ante iaculis arcu pretium rutrum eget sit amet purus. Integer ornare nulla quis neque ultrices lobortis. Vestibulum ultrices tincidunt libero, quis commodo erat ullamcorper id.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Bullet Points}
+\begin{itemize}
+\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
+\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
+\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
+\item Nam cursus est eget velit posuere pellentesque
+\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Blocks of Highlighted Text}
+\begin{block}{Block 1}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+\end{block}
+
+\begin{block}{Block 2}
+Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
+\end{block}
+
+\begin{block}{Block 3}
+Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
+\end{block}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Multiple Columns}
+\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+
+\column{.45\textwidth} % Left column and width
+\textbf{Heading}
+\begin{enumerate}
+\item Statement
+\item Explanation
+\item Example
+\end{enumerate}
+
+\column{.5\textwidth} % Right column and width
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+
+\end{columns}
+\end{frame}
+
+%------------------------------------------------
+\section{Second Section}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Table}
+\begin{table}
+\begin{tabular}{l l l}
+\toprule
+\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
+\midrule
+Treatment 1 & 0.0003262 & 0.562 \\
+Treatment 2 & 0.0015681 & 0.910 \\
+Treatment 3 & 0.0009271 & 0.296 \\
+\bottomrule
+\end{tabular}
+\caption{Table caption}
+\end{table}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Theorem}
+\begin{theorem}[Mass--energy equivalence]
+$E = mc^2$
+\end{theorem}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+\frametitle{Verbatim}
+\begin{example}[Theorem Slide Code]
+\begin{verbatim}
+\begin{frame}
+\frametitle{Theorem}
+\begin{theorem}[Mass--energy equivalence]
+$E = mc^2$
+\end{theorem}
+\end{frame}\end{verbatim}
+\end{example}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Figure}
+Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
+%\begin{figure}
+%\includegraphics[width=0.8\linewidth]{test}
+%\end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+\frametitle{Citation}
+An example of the \verb|\cite| command to cite within the presentation:\\~
+
+This statement requires citation \cite{p1}.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{References}
+\footnotesize{
+\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
+\bibitem[Smith, 2012]{p1} John Smith (2012)
+\newblock Title of the publication
+\newblock \emph{Journal Name} 12(3), 45 -- 678.
+\end{thebibliography}
+}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{The End}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+
+\fi
+
+\end{document} 

@@ -142,4 +142,56 @@ Simplifiying yields
  (1-\eps) \beta_j \leq \hat{\beta}_j \leq (1+\eps) \beta_j
 \]
 
+\section{Some Sufficient Conditions}
+
+The were many ideas for how to show robustness, but none have worked so far.  It might be useful to know that it suffices to show either that $\alpha_{i} = O(x_{ij})$ for all $j$ such that $x_{ij} > 0$ or show that $\alpha_{i} = O(\epsilon T / |\Gamma(i)|)$.
+
+
+\section{The Dual Problem}
+
+We have a convex program of the following form
+\[
+\begin{array}{cc}
+\min & \frac{1}{2}\langle Qx, x \rangle + \langle c , x \rangle \\
+\text{s.t.} & A x \geq b \\
+ & x \geq 0 
+\end{array}
+\]
+Where $Q$ is a symmetric and positive semidefinite matrix.  The dual of this problem is (See \cite{QPDual} for a reference):
+\[ \begin{array}{cc}
+\max & \langle b, v \rangle - \frac{1}{2} \langle Qu, u \rangle \\
+\text{s.t.} & A^{\top} v - Q u \leq c \\
+ & v \geq 0
+\end{array} \]
+
+Moreover, the dual of the dual is the original problem, and strong duality holds.
+
+For our problem, let $G = (I \cup J , E)$ be the bipartite graph indicating the relationship between jobs and machines.  Then $x, u \in \R^E$ and $v = (\alpha,\beta) \in \R^{I \cup J}$.  We have that $Q = I$, $c= 0$ and $b = (-T \cdot \vec{1}, \vec{1})$.  Then the primal and dual problems become:
+
+\[
+\begin{array}{ccc}
+\min & \frac{1}{2} \displaystyle\sum_{ij \in E} x_{ij}^2 & \\
+\text{s.t.} & \displaystyle\sum_{j \in \Gamma(i)} x_{ij} \leq T & \forall i \in I \\
+ & \displaystyle\sum_{i \in \Gamma(j)} x_{ij} \geq 1 & \forall j \in J\\ 
+ & x \geq 0 
+\end{array}
+\]
+
+\[
+\begin{array}{ccc}
+\max & -\frac{1}{2} \displaystyle\sum_{ij \in E} u_{ij}^2 + \displaystyle\sum_{i \in I} (-T) \alpha_{i} + \displaystyle \sum_{j \in J} \beta_j & \\
+\text{s.t.} & \beta_{j} - \alpha_{i} \leq u_{ij} & \forall ij \in E \\
+ & \alpha, \beta \geq 0 
+\end{array}
+\]
+
+Note that it suffices to take $u = x$ in an optimal solution.
+
+We want to think about robustness in the context of the dual problem.  One way to (intuitively) think about it is that we have changed the $\alpha$ and $\beta$ variables by small $(1\pm\epsilon)$-factors, so this should correspondingly change the right hand side in the primal by the same factor.  However I do not think this is a proof, but it gives some intuition and it still seems plausible that the conjecture we want is true.
+
+One way I have thought about trying to make this argument more rigourous is to find a ``new'' $b$ vector such that the perturbed $\alpha$ and $\beta$ variables are optimal for that instance of the dual problem.  Then by the primal-dual relationship we know that this new $b$ vector is the right hand side of the constraints for the primal.  So as long as the new $b$ vector isn't perturbed too much from what we wanted, we can conclude robustness, as our algorithm will construct an optimal feasible solution for this primal problem.
+
+
+
+
 \end{document}
